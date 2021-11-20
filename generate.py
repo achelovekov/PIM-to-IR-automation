@@ -96,18 +96,19 @@ class Ansible(BaseModel):
 {% for item in data -%}
 {{ item[0] }}\tansible_host={{ item[1] }}
 {% endfor %}
-"""
+""" 
         j2_inventory_template_perStage = Template(template_perStage)
         j2_inventory_template_all = Template(template_all)
 
-        for room in rooms:
-            data = Ansible.splitHostsByRoom(room, hostsWithIps)
-            if len(data) > 0: 
-                if stageNum != 'all_stages':
-                    Auxilary.writeDataToFile(f'{ansiblePath}/inventories/__stage_{stageNum}_inventory_new.yml', 
-                            j2_inventory_template_perStage.render(stageNum=stageNum, data=data), 
-                            'a')
-                else:
+        if stageNum != 'all_stages':
+            Auxilary.writeDataToFile(f'{ansiblePath}/inventories/__stage_{stageNum}_inventory_new.yml', 
+                    j2_inventory_template_perStage.render(stageNum=stageNum, data=hostsWithIps), 
+                    'a')
+        else:
+            for room in rooms:
+                data = Ansible.splitHostsByRoom(room, hostsWithIps)
+                print(room)
+                if len(data) > 0: 
                     Auxilary.writeDataToFile(f'{ansiblePath}/inventories/hosts.yml', 
                             j2_inventory_template_all.render(room=room, data=data), 
                             'a')
@@ -451,4 +452,4 @@ if __name__ == "__main__":
         'subnets_stage_5.plain'
         )
 
-#исправить генерацию новых инвентори для норнира 
+#исправить стейдж для норнира

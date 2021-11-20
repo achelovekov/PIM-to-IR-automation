@@ -66,11 +66,11 @@ def writeDataToFile(filename, data):
     with open(filename, 'w') as f:
         f.write(data)
 
-def generateConfigs(di, stageNum):
+def generateConfigs(di, stageNum, path):
     shutil.rmtree(stageNum, ignore_errors=True)
     for hostname, data in di.items():
         if len(data) > 0:
-            writeDataToFile(f"{stageNum}/configs/{hostname}-{stageNum}.cfg", generateRenderedData(data))
+            writeDataToFile(f"{path}/{stageNum}/configs/{hostname}-{stageNum}.cfg", generateRenderedData(data))
 
 if __name__ == "__main__":
 
