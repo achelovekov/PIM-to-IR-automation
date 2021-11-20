@@ -85,23 +85,31 @@ class Auxilary(BaseModel):
 class Ansible(BaseModel):
     @classmethod
     def hosts(cls, rooms, stageNum, hostsWithIps, ansiblePath):
-        template = """
+        template_perStage = """
+[stage_{{ stageNum }}]
+{% for item in data -%}
+{{ item[0] }}\tansible_host={{ item[1] }}
+{% endfor %}
+"""
+        template_all = """
 [{{ room }}]
 {% for item in data -%}
 {{ item[0] }}\tansible_host={{ item[1] }}
 {% endfor %}
 """
-        j2_inventory_template = Template(template)
+        j2_inventory_template_perStage = Template(template_perStage)
+        j2_inventory_template_all = Template(template_all)
+
         for room in rooms:
             data = Ansible.splitHostsByRoom(room, hostsWithIps)
             if len(data) > 0: 
                 if stageNum != 'all_stages':
                     Auxilary.writeDataToFile(f'{ansiblePath}/inventories/__stage_{stageNum}_inventory_new.yml', 
-                            j2_inventory_template.render(room=room, data=data), 
+                            j2_inventory_template_perStage.render(stageNum=stageNum, data=data), 
                             'a')
                 else:
                     Auxilary.writeDataToFile(f'{ansiblePath}/inventories/hosts.yml', 
-                            j2_inventory_template.render(room=room, data=data), 
+                            j2_inventory_template_all.render(room=room, data=data), 
                             'a')
         
     @classmethod
@@ -423,7 +431,7 @@ if __name__ == "__main__":
     db.generateAnsibleData(allStagesData, 
         'eMZ', 
         'cspc',
-        'AGP&PsCQ65W3!',
+        '*********',
         '10.1.1.1',
         args.ansiblePath,
         'subnets_stage_1.plain', 
@@ -434,7 +442,7 @@ if __name__ == "__main__":
         )
     db.generateNornirData(allStagesData,
         'cspc',
-        'AGP&PsCQ65W3!', 
+        '*********', 
         args.nornirPath,
         'subnets_stage_1.plain', 
         'subnets_stage_2.plain', 
@@ -442,3 +450,5 @@ if __name__ == "__main__":
         'subnets_stage_4.plain', 
         'subnets_stage_5.plain'
         )
+
+#исправить генерацию новых инвентори для норнира 
